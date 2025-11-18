@@ -2,6 +2,7 @@ import * as model from './model.js';
 import recipeView from './views/RecipeView.js';
 import resultsView from './views/ResultsView.js';
 import searchView from './views/searchView.js';
+import paginationView from './views/paginationView.js';
 import icons from 'url:../img/icons.svg';
 
  const recipeContainer = document.querySelector('.recipe');
@@ -42,11 +43,9 @@ const controlRecipes = async function () {
     if (!id) return;
 
     recipeView.renderSpinner();
-
     await model.loadRecipe(id);
 
     recipeView.render(model.state.recipe);
-
   } catch (err) {
     recipeView.renderError();
   }
@@ -55,12 +54,6 @@ const controlRecipes = async function () {
 // ['hashchange', 'load'].forEach(ev =>
 //   window.addEventListener(ev, controlRecipes)
 // );
-
-function init() {
-  recipeView.addHandlerRender(controlRecipes);
-  searchView.addHandlerSearch(controlSearchResults);
-}
-
 
 const controlSearchResults = async function () {
   try {
@@ -74,11 +67,29 @@ const controlSearchResults = async function () {
 
     // 3. Imprimir resultados en consola (solo para pruebas)
     console.log(model.state.search.results);
-     resultsView.render(model.state.search.results);
-    
+    //resultsView.render(model.state.search.results);
+    resultsView.render(model.getSearchResultsPage());
+
+    paginationView.render(model.state.search);
+
   } catch (err) {
     console.log(err);
   }
 };
+
+function controlPagination(goToPage) {
+  // 1) Renderiza NUEVA página
+  resultsView.render(model.getSearchResultsPage(goToPage));
+
+  // 2) Renderiza NUEVOS botones
+  paginationView.render(model.state.search);
+}
+
+function init() {
+  recipeView.addHandlerRender(controlRecipes);
+  // searchView.addHandlerSearch(controlSearchResults);
+  searchView.addHandlerSearch(controlSearchResults);
+  paginationView.addHandlerClick(controlPagination);
+}
 
 init();

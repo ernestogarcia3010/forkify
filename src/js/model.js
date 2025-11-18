@@ -1,5 +1,6 @@
 import { API_URL } from './config.js';
 import { getJSON } from './helpers.js';
+import { RES_PER_PAGE } from './config.js';
 
 // 1. Objeto state
 export const state = {
@@ -7,6 +8,8 @@ export const state = {
   search: {
     query: '',
     results: [],
+    page: 1,
+    resultsPerPage: RES_PER_PAGE,
   },
 };
 
@@ -60,6 +63,15 @@ export const loadSearchResults = async function (query) {
     console.log(`${err}`);  // Mostrar error en consola como lo pide la práctica
     throw err;              // Volver a lanzar el error para el controller
   }
+};
+
+export const getSearchResultsPage = function (page = state.search.page) {
+  state.search.page = page;
+
+  const start = (page - 1) * state.search.resultsPerPage;
+  const end = page * state.search.resultsPerPage;
+
+  return state.search.results.slice(start, end);
 };
 
 //loadSearchResults('pizza');
