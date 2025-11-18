@@ -4,6 +4,10 @@ import { getJSON } from './helpers.js';
 // 1. Objeto state
 export const state = {
   recipe: {},
+  search: {
+    query: '',
+    results: [],
+  },
 };
 
 // 2. Función loadRecipe
@@ -29,7 +33,33 @@ export const loadRecipe = async function (id) {
     console.log(state.recipe);
 
   } catch (err) {
-    alert(err);
     throw err;
   }
 };
+
+export const loadSearchResults = async function (query) {
+  try {
+
+    state.search.query = query;
+    // 1. Llamar a la API usando helpers.getJSON
+    const data = await getJSON(`${API_URL}?search=${query}`);
+
+    // 2. Crear la matriz con los resultados formateados
+    state.search.results = data.data.recipes.map(rec => {
+      return {
+        id: rec.id,
+        title: rec.title,
+        publisher: rec.publisher,
+        image: rec.image_url,
+      };
+    });
+
+     //console.log(state.search.results);
+
+  } catch (err) {
+    console.log(`${err}`);  // Mostrar error en consola como lo pide la práctica
+    throw err;              // Volver a lanzar el error para el controller
+  }
+};
+
+//loadSearchResults('pizza');

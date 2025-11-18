@@ -1,5 +1,7 @@
 import * as model from './model.js';
 import recipeView from './views/RecipeView.js';
+import resultsView from './views/ResultsView.js';
+import searchView from './views/searchView.js';
 import icons from 'url:../img/icons.svg';
 
  const recipeContainer = document.querySelector('.recipe');
@@ -46,10 +48,37 @@ const controlRecipes = async function () {
     recipeView.render(model.state.recipe);
 
   } catch (err) {
-    console.error(err);
+    recipeView.renderError();
   }
 };
 
-['hashchange', 'load'].forEach(ev =>
-  window.addEventListener(ev, controlRecipes)
-);
+// ['hashchange', 'load'].forEach(ev =>
+//   window.addEventListener(ev, controlRecipes)
+// );
+
+function init() {
+  recipeView.addHandlerRender(controlRecipes);
+  searchView.addHandlerSearch(controlSearchResults);
+}
+
+
+const controlSearchResults = async function () {
+  try {
+    resultsView.renderSpinner();
+    // 1. Obtener query desde la vista
+    const query = searchView.getQuery();
+    if (!query) return;
+
+    // 2. Cargar resultados desde el modelo
+    await model.loadSearchResults(query);
+
+    // 3. Imprimir resultados en consola (solo para pruebas)
+    console.log(model.state.search.results);
+     resultsView.render(model.state.search.results);
+    
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+init();
